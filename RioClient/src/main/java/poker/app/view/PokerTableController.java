@@ -1,6 +1,8 @@
 package poker.app.view;
 
 import java.net.URL;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.animation.FadeTransition;
@@ -18,6 +20,7 @@ import javafx.scene.layout.HBox;
 import javafx.util.Duration;
 import poker.app.MainApp;
 import pokerBase.Action;
+import pokerBase.Player;
 import pokerBase.Table;
 import pokerEnums.eAction;
 import pokerEnums.ePlayerPosition;
@@ -79,11 +82,10 @@ public class PokerTableController implements Initializable {
 	@FXML
 	private HBox hboxP4Cards;
 
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		imgViewDealerButtonPos3.setVisible(true);
-		imgViewDealerButtonPos4.setVisible(true);		
+		imgViewDealerButtonPos4.setVisible(true);
 	}
 
 	public void setMainApp(MainApp mainApp) {
@@ -122,10 +124,10 @@ public class PokerTableController implements Initializable {
 			iPlayerPosition = 0;
 		}
 
-		//	Set the PlayerPosition in the Player
+		// Set the PlayerPosition in the Player
 		mainApp.getPlayer().setiPlayerPosition(iPlayerPosition);
 
-		//	Build an Action message
+		// Build an Action message
 		Action act = new Action(btnSitLeave.isSelected() ? eAction.Sit : eAction.Leave, mainApp.getPlayer());
 
 		// Send the Action to the Hub
@@ -138,27 +140,100 @@ public class PokerTableController implements Initializable {
 
 	public void Handle_TableState(Table HubPokerTable) {
 
-		//TODO: If this message is called, that means there
-		//		was a change to the state of the Table (player
-		//		probably ran 'sit' or 'leave'
-		//		The Table was updated, you just have to refresh the
-		//		UI controls to show the current state of the 
-		//		Table object
-		
-		//TODO: run the 'getHashPlayers' method, iterate 
-		//		for all players and update the player label
-		//		and state of the sit/leave button.
+		lblPos1Name.setText("");
+		lblPos2Name.setText("");
+		lblPos3Name.setText("");
+		lblPos4Name.setText("");
 
-		//		Example: Joe sits at Position 1
-		//		Joe should see the 'Sit' button in position 1 in the
-		//		'pressed in' state, and with 
+		// scanInputControls(OuterBorderPane, "SitLeave",true);
+
+		btnPos1SitLeave.setVisible(true);
+		btnPos2SitLeave.setVisible(true);
+		btnPos3SitLeave.setVisible(true);
+		btnPos4SitLeave.setVisible(true);
+
+		btnPos1SitLeave.setText(btnPos1SitLeave.isSelected() ? "Leave" : "Sit");
+		btnPos2SitLeave.setText(btnPos2SitLeave.isSelected() ? "Leave" : "Sit");
+		btnPos3SitLeave.setText(btnPos3SitLeave.isSelected() ? "Leave" : "Sit");
+		btnPos4SitLeave.setText(btnPos4SitLeave.isSelected() ? "Leave" : "Sit");
+
+		btnStartGame.setDisable(HubPokerTable.getHashPlayers().size() > 0 ? false : true);
+
+		FadeButton(btnStartGame);
+		Iterator it = HubPokerTable.getHashPlayers().entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry pair = (Map.Entry) it.next();
+			Player p = (Player) pair.getValue();
+			switch (p.getiPlayerPosition()) {
+			case 1:
+				if (p.getPlayerID().equals(mainApp.getPlayer().getPlayerID())) {
+					btnPos1SitLeave.setVisible(true);
+					btnPos2SitLeave.setVisible(false);
+					btnPos3SitLeave.setVisible(false);
+					btnPos4SitLeave.setVisible(false);
+				} else {
+					btnPos1SitLeave.setVisible(false);
+				}
+				lblPos1Name.setText(p.getPlayerName().toString());
+				break;
+			case 2:
+				if (p.getPlayerID().equals(mainApp.getPlayer().getPlayerID())) {
+					btnPos1SitLeave.setVisible(false);
+					btnPos2SitLeave.setVisible(true);
+					btnPos3SitLeave.setVisible(false);
+					btnPos4SitLeave.setVisible(false);
+				} else {
+					btnPos2SitLeave.setVisible(false);
+				}
+				lblPos2Name.setText(p.getPlayerName().toString());
+				break;
+			case 3:
+				if (p.getPlayerID().equals(mainApp.getPlayer().getPlayerID())) {
+					btnPos1SitLeave.setVisible(false);
+					btnPos2SitLeave.setVisible(false);
+					btnPos3SitLeave.setVisible(true);
+					btnPos4SitLeave.setVisible(false);
+				} else {
+					btnPos3SitLeave.setVisible(false);
+				}
+				lblPos3Name.setText(p.getPlayerName().toString());
+				break;
+			case 4:
+				if (p.getPlayerID().equals(mainApp.getPlayer().getPlayerID())) {
+					btnPos1SitLeave.setVisible(false);
+					btnPos2SitLeave.setVisible(false);
+					btnPos3SitLeave.setVisible(false);
+					btnPos4SitLeave.setVisible(true);
+				} else {
+					btnPos4SitLeave.setVisible(false);
+				}
+				lblPos4Name.setText(p.getPlayerName().toString());
+				break;
+			}
+		}
 	}
+
+	// TODO: If this message is called, that means there
+	// was a change to the state of the Table (player
+	// probably ran 'sit' or 'leave'
+	// The Table was updated, you just have to refresh the
+	// UI controls to show the current state of the
+	// Table object
+
+	// TODO: run the 'getHashPlayers' method, iterate
+	// for all players and update the player label
+	// and state of the sit/leave button.
+
+	// Example: Joe sits at Position 1
+	// Joe should see the 'Sit' button in position 1 in the
+	// 'pressed in' state, and with
+	
 
 	@FXML
 	void btnStart_Click(ActionEvent event) {
 		// Start the Game
-		//TODO: Create an instance of Action, Action = StartGame
-		//		Send the message to the hub
+		// TODO: Create an instance of Action, Action = StartGame
+		// Send the message to the hub
 	}
 
 	@FXML
@@ -231,6 +306,5 @@ public class PokerTableController implements Initializable {
 
 		ft.play();
 	}
-
 
 }
